@@ -8,12 +8,17 @@ workPath <- "~/Desktop/proj/"
 dataPath <- "~/Desktop/proj/data/"
 
 downloadSymbols <- function(symbolList, pathID) {
+  dir.create(paste(dataPath, pathID, sep=""));
   for (s in symbolList) {
     url <- paste("http://finance.yahoo.com/q/hp?s=", s, sep="");
     doc <- htmlParse(url);
-    links <- xpathSApply(doc, "//a/@href");
-    dir.create(paste(dataPath, pathID, sep=""));
-    download.file(links[grepl("csv", links)][[1]], destfile=paste(dataPath, pathID, "/", "history_", s, ".csv",sep=""));
+    if (is.null(doc) == FALSE) {
+      links <- xpathSApply(doc, "//a/@href");
+      links <- links[grepl("csv", links)];
+      if (length(links) > 0) {
+        download.file(links[[1]], destfile=paste(dataPath, pathID, "/", "history_", s, ".csv",sep=""));
+      }
+    }
   }
 }
 
@@ -37,10 +42,48 @@ tables <- readHTMLTable(doc)
 Top10ETF <- head(tables[[1]]$Symbol, 10)
 downloadSymbols(Top10ETF, "USTechETF")
 
-# part 3.1: download China tech stock index history prices
-downloadSymbols(c("000915.SS"), "ChinaTechIndex")
+# part 3.1: download China tech stocks history prices in informaition software subsector
+dir.create(paste(dataPath, "ChinaTech", sep=""));
+for (i in 1:5) {
+  StockList <- read.csv(paste(dataPath, "ChinaTech", i, ".csv", sep=""))
+  Symbols <- vector('character')
+  for (s in StockList$代码) {
+    symbol <- toString(s)
+    len <- nchar(symbol)
+    if (len < 6) {
+      for (j in 1:(6-len)) {
+        symbol <- paste(0, symbol, sep="")
+      }
+    }
+    if (substring(symbol,1,1) == "6") {
+      Symbols <- append(Symbols, paste(symbol,".SS", sep=""))
+    } else {
+      Symbols <- append(Symbols, paste(symbol,".SZ", sep=""))
+    }
+    downloadSymbols(Symbols, "ChinaTech/Software")
+  }
+}
 
-# part 3.2: download China tech stocks history prices
+# part 3.2: download China tech stocks history prices in electrical hardware subsector
+for (i in 6:13) {
+  StockList <- read.csv(paste(dataPath, "ChinaTech", i, ".csv", sep=""))
+  Symbols <- vector('character')
+  for (s in StockList$代码) {
+    symbol <- toString(s)
+    len <- nchar(symbol)
+    if (len < 6) {
+      for (j in 1:(6-len)) {
+        symbol <- paste(0, symbol, sep="")
+      }
+    }
+    if (substring(symbol,1,1) == "6") {
+      Symbols <- append(Symbols, paste(symbol,".SS", sep=""))
+    } else {
+      Symbols <- append(Symbols, paste(symbol,".SZ", sep=""))
+    }
+    downloadSymbols(Symbols, "ChinaTech/Hardware")
+  }
+}
 
 
 
