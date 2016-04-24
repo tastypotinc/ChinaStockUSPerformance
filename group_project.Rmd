@@ -1,0 +1,25 @@
+---
+title: "stat133_group_project"
+author: "Yi Li, Zhang Qin, Zhaoqin Ye"
+date: ""
+output: pdf_document
+---
+
+#Analysis of General Information of Chinese Companies in US Stock Market
+
+##Data Preparation
+
+
+
+
+
+#Analysis of Chinese Companies' US Stock Performance against US Stock Market
+
+##Data Preparation
+
+
+
+#Analysis of Chinese Companies' US Stock Performance against Chinese Domestic Stock Market
+
+##Data Preparation
+
