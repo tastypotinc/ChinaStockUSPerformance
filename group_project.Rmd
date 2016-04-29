@@ -2,24 +2,299 @@
 title: "stat133_group_project"
 author: "Yi Li, Zhang Qin, Zhaoqin Ye"
 date: ""
-output: pdf_document
+output: 
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
 ---
-
+```{r echo=FALSE,message=FALSE}
+library(DataComputing)
+library(printr)
+library(XML)
+dataPath <- "~/Desktop/proj/data/"
+```
 #Analysis of General Information of Chinese Companies in US Stock Market
 
-##Data Preparation
+##0. Data Preparation
+In this section, we get the list of Chinese Company US Stocks `ChinaStockInUS.csv` from NASDAQ official website listing at (http://www.nasdaq.com/screening/companies-by-region.aspx?region=Asia&country=China). The website also contains the listing of stocks in major US exchange markets `NASDAQ.csv`, `NYSE.csv`, `AMEX.csv`, downloaded from http://www.nasdaq.com/screening/company-list.aspx  
+
+##1. Industry decomposition
+
+```{r kable, echo=FALSE,fig.align='center', message=FALSE}
+ChinainUS <- read.csv(file=paste(dataPath, "ChinaStockInUS.csv", sep="")) %>%
+  filter(Sector!="n/a")
+SectorCount <- ChinainUS %>%
+  group_by(Sector) %>%
+  summarise(Count=n()) %>%
+  arrange(desc(Count)) %>%
+  mutate(Percentage=paste(round(100*Count/nrow(ChinainUS), 2), "%", sep=""))
+kable(SectorCount)
+piechart <- ggplot(data=ChinainUS, aes(x = factor(1), fill = Sector)) +
+ geom_bar(width = 1)+ coord_polar(theta = "y")
+barchart <- SectorCount %>%
+  transform(Sector = reorder(Sector, Count)) %>%
+  ggplot(aes(x=Sector, y=Count, fill=Sector)) +
+    geom_bar(stat="identity") + 
+    coord_flip() +
+    ylab("Number of Companies") +
+    theme(legend.position="none")
+piechart
+barchart
+```
+
+* Most in tech
+
+##2. Exchange Distribution
+
+
+```{r echo=FALSE,fig.align='center', message=FALSE}
+NYSE <- read.csv(file=paste(dataPath, "NYSE.csv", sep=""))
+NASDAQ <- read.csv(file=paste(dataPath, "NASDAQ.csv", sep=""))
+AMEX <- read.csv(file=paste(dataPath, "AMEX.csv", sep=""))
+for (i in 1:nrow(ChinainUS)){
+  if (ChinainUS$Symbol[i] %in% NYSE$Symbol){
+    ChinainUS$Exchange[i]="NYSE"
+  }else if(ChinainUS$Symbol[i] %in% NASDAQ$Symbol){
+    ChinainUS$Exchange[i]="NASDAQ"
+  }else if(ChinainUS$Symbol[i] %in% AMEX$Symbol){
+    ChinainUS$Exchange[i]="AMEX"
+  }else{
+    ChinainUS$Exchange[i]="Other"
+  }
+}
+
+ExchangeCount <- ChinainUS%>%
+  group_by(Exchange)%>%
+  summarise(Count=n())%>%
+  arrange(desc(Count))%>%
+  mutate(Percentage=paste(round(100*Count/nrow(ChinainUS), 2), "%", sep=""))
+kable(ExchangeCount)
+```
+
+* 2/3 in NASDAQ, 1/3 in NYSE
+
+NASDAQ Sector decomposition:
+
+```{r echo=FALSE,message=FALSE}
+QCH <- ChinainUS%>%
+  filter(Exchange=="NASDAQ")
+Qsector <- QCH%>%
+  group_by(Sector)%>%
+  summarise(Count=n())%>%
+  arrange(desc(Count))%>%
+  mutate(Percentage=paste(round(100*Count/nrow(QCH), 2), "%", sep=""))
+kable(Qsector)
+```
+
+NYSE Sector Decomposition:
+
+```{r echo=FALSE, message=FALSE}
+NYCH <- ChinainUS%>%
+  filter(Exchange=="NYSE")
+Nsector <- NYCH%>%
+  group_by(Sector)%>%
+  summarise(Count=n())%>%
+  arrange(desc(Count))%>%
+  mutate(Percentage=paste(round(100*Count/nrow(NYCH), 2), "%", sep=""))
+kable(Nsector)
+```
+
+We can see Technology company dominates both NASDAQ and NYSE, and second ranking is both customer service, third Finance...
+
+3. Market Cap
+
+```{r echo=FALSE,fig.align='center', message=FALSE}
+Ave=mean(ChinainUS$MarketCap)
+SD=sd(ChinainUS$MarketCap)
+for (i in 1:nrow(ChinainUS)){
+  if (ChinainUS$MarketCap[i]<2000000000){
+    ChinainUS$Mkt[i]="Small Cap"
+  }else if(ChinainUS$MarketCap[i]>10000000000){
+    ChinainUS$Mkt[i]="Large Cap"
+  }else {
+    ChinainUS$Mkt[i]="Mid Cap"
+  }
+}
+ChinainUS%>%
+  filter(Exchange!="AMEX")%>%
+  ggplot(aes(Mkt))+geom_bar(aes(fill=Exchange), position="dodge")
+```
+
+* Average Market cap: $ 5.47B
+* Mostly small cap in NASDAQ
+* (The definitions in US and in China are actually different so IDK if this result is meaningful)
+
+4. IPO year
+```{r  echo=FALSE,fig.align='center', message=FALSE}
+ChinainUS%>%
+  filter(IPOyear!="n/a")%>%
+  group_by(IPOyear)%>%
+  summarise(Count=n())%>%
+  ggplot(aes(x=IPOyear,y=Count,group=1))+geom_line()+geom_point()+theme(axis.text.x = element_text(angle =45,hjust = 1))
+ChinainUS%>%
+  filter(IPOyear!="n/a")%>%
+  ggplot(aes(IPOyear))+geom_bar(aes(fill=Exchange),position="stack")+
+    theme(legend.position="top",axis.text.x = element_text(angle =30,hjust = 1))
+```
+
+* Peak in 2010
+* Upward trend rn
+* Used to dominate by NYSE, more NASDAQ in recent years.
 
 
 
-
-
+For the following analysis, we would only concentrate on the Tech sector as a representative of all other sectors.
 #Analysis of Chinese Companies' US Stock Performance against US Stock Market
 
-##Data Preparation
+## Data preparation
+We download the full history of China technology company US stocks at Yahoo Finance. We also find lists of technology ETFs holding only China tech company US stocks at http://www.etf.com/sections/features/22712-3-etfs-for-hot-chinese-tech-sector.html?nopaging=1, and top US Tech ETFs at http://etfdb.com/etfdb-category/technology-equities/#overview&page=1, obtaining the history in the same way.
 
+## Plots
+```{r echo=F}
+getStockTimeSeries <- function(filePath, title) {
+  stock <- read.csv(filePath) %>%
+    mutate(date=as.Date(Date), price=Close) %>%
+    filter(year(date) >= 2005) %>%
+    select(date, price)
+  return(mutate(stock, title=rep(title, nrow(stock))))
+}
+
+getStocksAverageTimeSeries <- function(folderPath, title) {
+  files <- list.files(folderPath)
+  stock <- read.csv(paste(folderPath, files[1], sep=""))
+  for (i in 2:length(files)) {
+    stock <- rbind(stock, read.csv(paste(folderPath, files[i], sep="")))
+  }
+  stock <- stock %>%
+    mutate(date=as.Date(Date)) %>%
+    group_by(date) %>%
+    summarise(price=mean(Close)) %>%
+    filter(year(date) >= 2005) %>%
+    select(date, price)
+  return(mutate(stock, title=rep(title, nrow(stock))))
+}
+
+plotSingleTimeSeries <- function(timeSeries) {
+  ggplot(timeSeries, aes(x=date, y=price)) + 
+    geom_line(color="blue")
+}
+
+plotMultipleTimeSeries <- function(timeSeriesList) {
+  tbl <- timeSeriesList[[1]]
+  for (i in 2:length(timeSeriesList)) {
+    tbl <- rbind(tbl, timeSeriesList[[i]])
+  }
+  ggplot(tbl, aes(x=date, y=price, color=title)) + 
+    geom_line()
+}
+```
+
+Because all history data are obtained in the same format, we can append the all stocks history of China tech Company US stock performance over 2005 to present, group by date and get their average
+```{r}
+ChinaTechInUS <- getStocksAverageTimeSeries(paste(dataPath, "ChinaTechInUS/",sep=""),"ChinaTechInUS")
+```
+
+plot against US top 10 ETF:
+```{r}
+timeSeriesList <- list(ChinaTechInUS)
+USETFPath <- paste(dataPath, "USTechETF/", sep="")
+total <- 1
+for (etf in list.files(USETFPath)) {
+  total <- total + 1
+  newTimeSeries <- getStockTimeSeries(paste(USETFPath, etf, sep=""), gsub("(history_|.csv)","",etf))
+  timeSeriesList[[total]] <- newTimeSeries
+}
+plotMultipleTimeSeries(timeSeriesList)
+```
+We can see in average all US tech ETFs outperforms China tech stocks
+
+plot against US ETF holding obly China's US stocks:
+```{r}
+timeSeriesList <- list(ChinaTechInUS)
+USETFPath <- paste(dataPath, "ChinaTechUSETF/", sep="")
+total <- 1
+for (etf in list.files(USETFPath)) {
+  total <- total + 1
+  newTimeSeries <- getStockTimeSeries(paste(USETFPath, etf, sep=""), gsub("(history_|.csv)","",etf))
+  timeSeriesList[[total]] <- newTimeSeries
+}
+plotMultipleTimeSeries(timeSeriesList)
+```
+We can see the three ETFs are good representation of general trend of China Company US Stocks average performance, especially QQQC.
 
 
 #Analysis of Chinese Companies' US Stock Performance against Chinese Domestic Stock Market
 
-##Data Preparation
+## Data preparation
+We find listing of China technology stocks in two subsectors software and hardware at http://quote.eastmoney.com/center/list.html#28002737_0_2. Then we obtain history of these stocks in Yahoo Finance in the same way as before.
+
+## Plots
+With the same idea to get the average of Software subsector, hardware subsector, and tech sector as a whole:
+```{r}
+ChinaSoftwareRMB <- getStocksAverageTimeSeries(paste(dataPath, "ChinaTech/Software/",sep=""),"ChinaSoftware")
+ChinaHardwareRMB <- getStocksAverageTimeSeries(paste(dataPath, "ChinaTech/Hardware/",sep=""),"ChinaHardware")
+ChinaTechRMB <- rbind(ChinaSoftwareRMB, ChinaHardwareRMB) %>%
+  group_by(date) %>%
+  summarise(price=mean(price))
+ChinaTechRMB <- mutate(ChinaTechRMB, title=rep("ChinaTech", nrow(ChinaTechRMB)))
+```
+
+Because these data are in RMB, we can convert the price into USD
+```{r}
+ChinaSoftwareUSD <- mutate(ChinaSoftwareRMB, price=price/6.3)
+ChinaHardwareUSD <- mutate(ChinaHardwareRMB, price=price/6.3)
+ChinaTechUSD <- mutate(ChinaTechRMB, price=price/6.3)
+```
+
+Plot China Company US Stock average against China Domestic performances:
+* China stock in USD
+```{r}
+timeSeriesList <- list(ChinaTechInUS, ChinaTechUSD, ChinaSoftwareUSD, ChinaHardwareUSD)
+plotMultipleTimeSeries(timeSeriesList)
+```
+We can see China Tech company in US stock market has absolute advantage in total asset value in USD because of the exchange rate
+
+* China stock in RMB
+```{r}
+timeSeriesList <- list(ChinaTechInUS, ChinaTechRMB, ChinaSoftwareRMB, ChinaHardwareRMB)
+plotMultipleTimeSeries(timeSeriesList)
+```
+We can see comparing the trend actually Domestic and Foreign markets have similar trends before 2015, but during 2015 China domestic stock tends to outperform foreign market because of China's stock boom
+
+Plot China Company US ETF against China Domestic Performance:
+* China stock in USD
+```{r}
+timeSeriesList <- list(ChinaTechUSD)
+USETFPath <- paste(dataPath, "ChinaTechUSETF/", sep="")
+total <- 1
+for (etf in list.files(USETFPath)) {
+  total <- total + 1
+  newTimeSeries <- getStockTimeSeries(paste(USETFPath, etf, sep=""), gsub("(history_|.csv)","",etf))
+  timeSeriesList[[total]] <- newTimeSeries
+}
+plotMultipleTimeSeries(timeSeriesList)
+```
+again we can see these foreign market ETFs have much higher price than domestic average due to the exchange rate
+
+*China stock in RMB
+```{r}
+timeSeriesList[[1]] <- ChinaTechRMB
+plotMultipleTimeSeries(timeSeriesList)
+```
+However these ETFs follow very similar trend with China domestic average price, implying the China's domestic price is a relatively great driven force for foreign China Company stock price
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
