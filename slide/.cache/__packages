@@ -1,0 +1,15 @@
+base
+ggplot2
+dplyr
+lubridate
+tidyr
+stringr
+knitr
+lattice
+car
+mosaicData
+mosaic
+manipulate
+base64enc
+curl
+DataComputing

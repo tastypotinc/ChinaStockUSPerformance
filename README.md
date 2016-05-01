@@ -5,6 +5,7 @@
 * `data` folder contains all pre-downloaded data and data created with `data_prepare.R`
 * All analysis are done in the file `group_project.Rmd`
 * Plot util functions in `plots.R`
+* presentation slides in `slide` folder, written with R `slidify` package
 
 ## Path Config:
 * project folder placed in Desktop as default in all R scripts

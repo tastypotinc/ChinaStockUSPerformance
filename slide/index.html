@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Eat and Play Team</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Eat and Play Team">
+  <meta name="author" content="Yi Li, Zhang Qin, Zhaoqin Ye">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/default.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Eat and Play Team</h1>
+    <h2>China Company US Stock Analysis</h2>
+    <p>Yi Li, Zhang Qin, Zhaoqin Ye<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <article data-timings="">
+    
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Eat and Play Team: China Company US Stock Analysis</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>question answered:
+
+<ul>
+<li>What are some patterns in the decomposition of China companies&#39; US Stock</li>
+<li>How do these stocks perform compared to US stocks</li>
+<li>how do these stocks perform compared to Chinese domestic stocks</li>
+</ul></li>
+</ul>
+
+<h2>Chinese company US stock decomposition</h2>
+
+<ul>
+<li>dataset: NASDAQ, NYSE, AMEX exchanges stock listing (variables: symbol, sector, IPOyear, exchange)</li>
+</ul>
+
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-1-1.png" title="plot of chunk unnamed-chunk-1" alt="plot of chunk unnamed-chunk-1" width="400px" height="250px" />
+Technology dominates all other sectors</p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" width="400px" height="250px" /></p>
+
+<p>NYSE has more in past, but NASDAQ increases greatly and exceeds NYSE in recent years</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Performance against US stocks</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>method learned in class: 
+
+<ul>
+<li>use XML library to scrape data table in HTML page</li>
+<li>convert all history data to same tiny data format</li>
+<li>process and mutate date variables in R</li>
+</ul></li>
+<li>dataset: 
+
+<ul>
+<li>Top technology ETFs listing (variables: symbol)</li>
+<li>Yahoo Finance stock history price (variables: date, Close price)</li>
+</ul></li>
+</ul>
+
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" width="500px" height="250px" />
+China company&#39;s stocks do not perform as well as US stocks in tech sector</p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" width="500px" height="250px" />
+These three ETFs have very similar pattern compared to the average</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Performance against Chinese domestic stocks</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>method not in class: 
+
+<ul>
+<li>data scraping for non-html tables, using Scraper plugin in Chrome</li>
+<li>deal with non-ASCII encoded data table information</li>
+<li>clean HTML page for specific tag information as data input</li>
+</ul></li>
+<li>dataset:
+
+<ul>
+<li>Chinese stock listing by sector (variables: symbol, exchange, sector)</li>
+<li>Yahoo Finance stock history price (variables: date, Close price)</li>
+</ul></li>
+</ul>
+
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="500px" height="250px" />
+Follow very similar patterns, starting from 2014 domestic tech stocks tend to outperform foreign stocks due to China&#39;s tech boom</p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" width="500px" height="250px" />
+ETFs follow similar pattern to domestic average, indicating domestic stock has some influence to foreign China stock price</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='NA'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Eat and Play Team: China Company US Stock Analysis'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Performance against US stocks'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Performance against Chinese domestic stocks'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
