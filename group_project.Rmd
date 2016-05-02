@@ -222,6 +222,21 @@ plotMultipleTimeSeries(timeSeriesList)
 ```
 We can see the three ETFs are good representation of general trend of China Company US Stocks average performance, especially QQQC.
 
+plot and calculate correlation:
+```{r}
+USETFAverage <- getStocksAverageTimeSeries(paste(dataPath, "USTechETF/",sep=""),"USETFAverage") %>%
+  mutate(year=year(date)+month(date)*0.01) %>%
+  group_by(year) %>%
+  summarise(price=mean(price))
+ChinaTechInUSYearly <- ChinaTechInUS %>%
+  mutate(year=year(date)+month(date)*0.01) %>%
+  group_by(year) %>%
+  summarise(price=mean(price))
+USvsChina <- data.frame(us=USETFAverage$price, china=ChinaTechInUSYearly$price)
+ggplot(USvsChina, aes(x=us, y=china)) + geom_jitter() + geom_smooth(method="lm")
+```
+Not very strong correlation, calculated roughly 0.3
+
 
 #Analysis of Chinese Companies' US Stock Performance against Chinese Domestic Stock Market
 
@@ -284,7 +299,16 @@ plotMultipleTimeSeries(timeSeriesList)
 However these ETFs follow very similar trend with China domestic average price, implying the China's domestic price is a relatively great driven force for foreign China Company stock price
 
 
-
+plot and calculate correlation:
+```{r}
+ChinaTechDomesticYearly <- ChinaTechRMB %>%
+  mutate(year=year(date)+month(date)*0.01) %>%
+  group_by(year) %>%
+  summarise(price=mean(price))
+ForeignVSDomestic <- data.frame(foreign=ChinaTechInUSYearly$price, domestic=ChinaTechDomesticYearly$price)
+ggplot(ForeignVSDomestic, aes(x=domestic, y=foreign)) + geom_jitter() + geom_smooth(method="lm")
+```
+Not very strong correlation
 
 
 

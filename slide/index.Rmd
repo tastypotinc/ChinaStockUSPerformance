@@ -16,8 +16,8 @@ knit        : slidify::knit2slides
 
 - question answered:
   - What are some patterns in the decomposition of China companies' US Stock
-  - How do these stocks perform compared to US stocks
-  - how do these stocks perform compared to Chinese domestic stocks
+  - How do these stocks perform compared to US stocks from 2005 to present
+  - how do these stocks perform compared to Chinese domestic stocks from 2005 to present
 
 ## Chinese company US stock decomposition
 - dataset: NASDAQ, NYSE, AMEX exchanges stock listing (variables: symbol, sector, IPOyear, exchange)
@@ -40,7 +40,7 @@ SectorCount %>%
     ylab("Number of Companies") + 
     theme(legend.position="none")
 ```
-Technology dominates all other sectors
+Technology dominates all other sectors, so we choose to use this sector's stocks for further comparison with different markets
 
 *** =right
 ```{r echo=FALSE,message=FALSE,out.width='400px',out.height='250px'}
@@ -79,7 +79,7 @@ NYSE has more in past, but NASDAQ increases greatly and exceeds NYSE in recent y
   - Yahoo Finance stock history price (variables: date, Close price)
 
 *** =left
-```{r echo=FALSE,message=FALSE,out.width='500px',out.height='250px'}
+```{r echo=FALSE,message=FALSE,out.width='500px',out.height='300px'}
 getStockTimeSeries <- function(filePath, title) {
   stock <- read.csv(filePath) %>%
     mutate(date=as.Date(Date), price=Close) %>%
@@ -131,8 +131,8 @@ plotMultipleTimeSeries(timeSeriesList)
 China company's stocks do not perform as well as US stocks in tech sector
 
 *** =right
-```{r echo=FALSE,message=FALSE,out.width='500px',out.height='250px'}
-timeSeriesList <- list(ChinaTechInUS)
+```{r echo=FALSE,message=FALSE,out.width='500px',out.height='300px'}
+timeSeriesList <- list()
 USETFPath <- paste(dataPath, "ChinaTechUSETF/", sep="")
 total <- 1
 for (etf in list.files(USETFPath)) {
@@ -140,9 +140,16 @@ for (etf in list.files(USETFPath)) {
   newTimeSeries <- getStockTimeSeries(paste(USETFPath, etf, sep=""), gsub("(history_|.csv)","",etf))
   timeSeriesList[[total]] <- newTimeSeries
 }
+USETFPath <- paste(dataPath, "USTechETF/", sep="")
+for (etf in list.files(USETFPath)) {
+  total <- total + 1
+  newTimeSeries <- getStockTimeSeries(paste(USETFPath, etf, sep=""), gsub("(history_|.csv)","",etf)) %>%
+    filter(year(date) >= 2010)
+  timeSeriesList[[total]] <- newTimeSeries
+}
 plotMultipleTimeSeries(timeSeriesList)
 ```
-These three ETFs have very similar pattern compared to the average
+Three ETFs of China stocks also indicates the low performance against foreign stocks in same category
 
 --- &twocol
 
@@ -150,13 +157,13 @@ These three ETFs have very similar pattern compared to the average
 - method not in class: 
   - data scraping for non-html tables, using Scraper plugin in Chrome
   - deal with non-ASCII encoded data table information
-  - clean HTML page for specific tag information as data input
+  - clean HTML page for link tag information as data input using XPathApply
 - dataset:
   - Chinese stock listing by sector (variables: symbol, exchange, sector)
   - Yahoo Finance stock history price (variables: date, Close price)
 
 *** =left
-```{r echo=FALSE,message=FALSE,out.width='500px',out.height='250px'}
+```{r echo=FALSE,message=FALSE,out.width='500px',out.height='300px'}
 ChinaSoftwareRMB <- getStocksAverageTimeSeries(paste(dataPath, "ChinaTech/Software/",sep=""),"ChinaSoftware")
 ChinaHardwareRMB <- getStocksAverageTimeSeries(paste(dataPath, "ChinaTech/Hardware/",sep=""),"ChinaHardware")
 ChinaTechRMB <- rbind(ChinaSoftwareRMB, ChinaHardwareRMB) %>%
@@ -166,11 +173,11 @@ ChinaTechRMB <- mutate(ChinaTechRMB, title=rep("ChinaTech", nrow(ChinaTechRMB)))
 timeSeriesList <- list(ChinaTechInUS, ChinaTechRMB, ChinaSoftwareRMB, ChinaHardwareRMB)
 plotMultipleTimeSeries(timeSeriesList)
 ```
-Follow very similar patterns, starting from 2014 domestic tech stocks tend to outperform foreign stocks due to China's tech boom
+Follow very similar patterns, especially from 2009-2014, but starting from 2014 domestic tech stocks tend to outperform foreign stocks due to China's tech boom
 
 *** =right
-```{r echo=FALSE,message=FALSE,out.width='500px',out.height='250px'}
-timeSeriesList <- list(ChinaTechRMB)
+```{r echo=FALSE,message=FALSE,out.width='500px',out.height='300px'}
+timeSeriesList <- list(filter(ChinaTechRMB, year(date) >= 2010))
 USETFPath <- paste(dataPath, "ChinaTechUSETF/", sep="")
 total <- 1
 for (etf in list.files(USETFPath)) {
@@ -180,4 +187,4 @@ for (etf in list.files(USETFPath)) {
 }
 plotMultipleTimeSeries(timeSeriesList)
 ```
-ETFs follow similar pattern to domestic average, indicating domestic stock has some influence to foreign China stock price
+ETFs follow similar pattern to domestic average, further indicating domestic stock influence to foreign China stock price
