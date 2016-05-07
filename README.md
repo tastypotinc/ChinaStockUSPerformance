@@ -1,5 +1,5 @@
 # China Companies in US Exchange Stock Performance Analysis
-## Author: Jack Ye, Zhang Qin
+## Author: Jack Ye, Zhang Qin, Yi Li
 
 ## File Contents:
 * `data` folder contains all pre-downloaded data and data created with `data_prepare.R`
